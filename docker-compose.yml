@@ -1,0 +1,7 @@
+version: "3"
+services:
+  redis:
+    container_name: "${REDIS_NAME}"
+    image: redis
+    ports:
+      - "${REDIS_PORTS}"
