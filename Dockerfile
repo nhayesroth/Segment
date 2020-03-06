@@ -7,10 +7,9 @@ RUN mvn clean package
 
 ############# Stage 2 - Copy the artifact we need (w/dependencies), discard the rest, and set startup commands
 FROM openjdk:8
-COPY --from=MAVEN /target/server-0.0.1-SNAPSHOT.jar /server.jar
-# Set startup commands to execute the jar
-CMD ["java", "-jar", "/server.jar"]
+# COPY --from=MAVEN /target/server-0.0.1-SNAPSHOT.jar /server.jar
+COPY --from=MAVEN /target/server-0.0.1-SNAPSHOT-jar-with-dependencies.jar /server-0.0.1-SNAPSHOT-jar-with-dependencies.jar
 
-# COPY --from=MAVEN /target/server-0.0.1-SNAPSHOT-jar-with-dependencies.jar /server-0.0.1-SNAPSHOT-jar-with-dependencies.jar
-# # Set startup commands to execute the jar
-# CMD ["java", "-jar", "/server-0.0.1-SNAPSHOT-jar-with-dependencies.jar"]
+# Set startup commands to execute the jar
+# CMD ["java", "-jar", "/server.jar"]
+CMD ["java", "-jar", "/server-0.0.1-SNAPSHOT-jar-with-dependencies.jar"]
