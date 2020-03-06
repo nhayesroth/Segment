@@ -5,3 +5,16 @@ services:
     image: redis
     ports:
       - "${REDIS_PORTS}"
+  # TODO: delete this
+  logo_server:
+      container_name: "${SERVER_NAME}"
+      build: .
+      ports:
+        - "8124:8124"
+      # depends_on:
+      #   - redis
+      # environment:
+      # - PROXY_PORT=4000
+      # - REDIS_ADDRESS=redis:6379
+      # - CACHE_EXPIRY_SECONDS=4
+      # - CACHE_CAPACITY=2

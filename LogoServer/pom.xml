@@ -1,0 +1,103 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>com.front.logo</groupId>
+  <artifactId>server</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+  <name>LogoServer</name>
+  <description>TCP server implementing a simple protocol that allows clients to draw on a virtual canvas and render it.</description>
+
+	<!-- Plugins -->
+	<build>
+	  <plugins>
+	  	<!-- Use the right version of javac (Maven defaults to 1.6) -->
+		  <plugin>
+		    <artifactId>maven-compiler-plugin</artifactId>
+		    <version>3.8.1</version>
+		    <configuration>
+		      <source>1.8</source>
+		      <target>1.8</target>
+		    </configuration>
+		  </plugin>
+	    <!-- Specify an executable class -->
+		  <plugin>
+	      <artifactId>maven-jar-plugin</artifactId>
+	      <version>3.2.0</version>
+	      <configuration>
+	        <archive>
+	          <manifest>
+		          <!-- <addClasspath>true</addClasspath> -->
+		          <mainClass>server.Server</mainClass>
+	          </manifest>
+	        </archive>
+	      </configuration>
+	    </plugin>
+			<!-- Include dependencies in the final executable -->
+<!-- 	    <plugin>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <version>3.2.0</version>
+        <configuration>
+            <descriptorRefs>
+	            <descriptorRef>jar-with-dependencies</descriptorRef>
+            </descriptorRefs>
+        </configuration>
+        <executions>
+          <execution>
+            <id>make-assembly</id> --> <!-- this is used for inheritance merges -->
+            <!-- <phase>package</phase> --> <!-- bind to the packaging phase -->
+            <!-- <goals>
+              <goal>single</goal>
+            </goals>
+          </execution>
+        </executions>
+	    </plugin> -->
+		</plugins>
+	</build>
+  
+  <!-- Dependencies -->
+  <dependencies>
+  	<!-- <dependency>
+		  <groupId>org.apache.maven.plugins</groupId>
+		  <artifactId>maven-jar-plugin</artifactId>
+		  <version>3.2.0</version>
+		  <type>maven-plugin</type>
+		</dependency> -->
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>3.8.1</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+      <version>25.1-jre</version>
+    </dependency>
+    <!-- https://mvnrepository.com/artifact/com.google.truth/truth -->
+	<dependency>
+	    <groupId>com.google.truth</groupId>
+	    <artifactId>truth</artifactId>
+	    <version>0.42</version>
+	    <scope>test</scope>
+	</dependency>
+    <!-- https://mvnrepository.com/artifact/com.google.truth.extensions/truth-java8-extension -->
+	<dependency>
+	    <groupId>com.google.truth.extensions</groupId>
+	    <artifactId>truth-java8-extension</artifactId>
+	    <version>1.0.1</version>
+	    <scope>test</scope>
+	</dependency>
+   	<!-- https://mvnrepository.com/artifact/com.google.collections/google-collections -->
+	<dependency>
+	    <groupId>com.google.collections</groupId>
+	    <artifactId>google-collections</artifactId>
+	    <version>1.0</version>
+	</dependency>
+	<dependency>
+	  <groupId>junit</groupId>
+	  <artifactId>junit</artifactId>
+	  <version>4.13</version>
+	</dependency>
+
+			    
+  </dependencies>
+</project>

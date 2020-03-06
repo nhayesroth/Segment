@@ -1,5 +1,8 @@
 include .env
 
+logo:
+	docker build -t ${SERVER_NAME} . && docker run -p 8124:8124 ${SERVER_NAME}
+
 redis:
 	docker-compose up --force-recreate --detach ${REDIS_NAME}
 
