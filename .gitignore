@@ -1,1 +1,5 @@
 *.old
+.DS*
+.class
+RedisProxy/target/
+.project
