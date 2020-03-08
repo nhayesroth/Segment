@@ -3,3 +3,7 @@
 .class
 RedisProxy/target/
 .project
+RedisProxy/.classpath
+RedisProxy/.metadata/
+RedisProxy/.settings/
+RedisProxy/bin/
