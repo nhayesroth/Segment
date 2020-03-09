@@ -64,13 +64,10 @@
 
   <!-- Dependencies -->
   <dependencies>
-    <!-- <dependency> <groupId>org.apache.maven.plugins</groupId> <artifactId>maven-jar-plugin</artifactId> 
-      <version>3.2.0</version> <type>maven-plugin</type> </dependency> -->
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
-      <version>3.8.1</version>
-      <scope>test</scope>
+      <version>4.4</version>
     </dependency>
     <dependency>
       <groupId>com.google.guava</groupId>
@@ -83,23 +80,6 @@
       <artifactId>slf4j-log4j12</artifactId>
       <version>1.7.28</version>
     </dependency>
-    <!--Jetty  dependencies start here-->
-    <dependency>
-        <groupId>org.eclipse.jetty</groupId>
-        <artifactId>jetty-server</artifactId>
-        <version>9.2.11.v20150529</version>
-    </dependency>
-    <dependency>
-        <groupId>org.eclipse.jetty</groupId>
-        <artifactId>jetty-servlet</artifactId>
-        <version>9.2.11.v20150529</version>
-    </dependency>
-    <!-- https://mvnrepository.com/artifact/org.eclipse.jetty/jetty-io -->
-    <!-- <dependency>
-        <groupId>org.eclipse.jetty</groupId>
-        <artifactId>jetty-io</artifactId>
-        <version>9.4.27.v20200227</version>
-    </dependency> -->
     <!-- https://mvnrepository.com/artifact/io.lettuce/lettuce-core -->
     <dependency>
         <groupId>io.lettuce</groupId>
@@ -131,10 +111,5 @@
       <artifactId>google-collections</artifactId>
       <version>1.0</version>
     </dependency>
-    <!-- <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>4.13</version>
-    </dependency> -->
   </dependencies>
 </project>

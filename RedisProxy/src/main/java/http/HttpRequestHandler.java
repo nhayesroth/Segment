@@ -5,13 +5,10 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.Socket;
-import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.google.common.cache.Cache;
 import cache.LruCache;
-import io.lettuce.core.api.async.RedisAsyncCommands;
 import server.Server;
 
 /** Handles an HTTP get request. */
@@ -23,7 +20,7 @@ public class HttpRequestHandler implements Runnable {
   private final OutputStream outputStream;
   private final LruCache cache;  
 
-  public HttpRequestHandler(int i, Socket socket, LruCache cache) throws IOException {
+  public HttpRequestHandler(Socket socket, LruCache cache) throws IOException {
     this.socket = socket;
     this.inputReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));;
     this.outputStream = socket.getOutputStream();
@@ -46,9 +43,9 @@ public class HttpRequestHandler implements Runnable {
   private void closeSocket() {
     try {
       socket.close();
-      logger.info("Closed socket {}", socket);
+      logger.debug("Closed socket {}", socket);
     } catch (IOException e) {
-      logger.info("Encountered exception while closing socket.");
+      logger.warn("Encountered exception while closing socket.");
       e.printStackTrace();
       throw new RuntimeException(e);
     }
@@ -74,7 +71,7 @@ public class HttpRequestHandler implements Runnable {
       outputStream.write(httpResponse.getBytes("UTF-8"));
       logger.info("Wrote to outputStream: {}", str);
     } catch (IOException e) {
-      logger.info("Encountered exception writing to output: ", str);
+      logger.warn("Encountered exception writing to output: ", str);
       e.printStackTrace();
       throw new RuntimeException(e);
     }

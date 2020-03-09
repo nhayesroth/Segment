@@ -12,14 +12,13 @@ import org.apache.log4j.Layout;
 import org.apache.log4j.spi.ErrorHandler;
 import org.apache.log4j.spi.Filter;
 import org.apache.log4j.spi.LoggingEvent;
-import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import cache.LruCache;
+import configuration.Configuration;
 import http.HttpServer;
-import http.HttpServlet;
 import io.lettuce.core.RedisClient;
 import io.lettuce.core.RedisURI;
 import io.lettuce.core.api.async.RedisAsyncCommands;
@@ -45,20 +44,13 @@ public class Server {
 
   private static final Logger logger = LoggerFactory.getLogger(Server.class.getName());
   private final ExecutorService threadPool = Executors.newFixedThreadPool(2);
-  private final RedisClient redisClient;
-  private final RedisAsyncCommands<String, String> commands;
-  private final LruCache cache;  
+  private RedisClient redisClient;
+  private RedisAsyncCommands<String, String> commands;
+  private LruCache cache;
+  private Configuration configuration;
 
   public Server() {
-    // TODO: make configurable
-    redisClient =
-        RedisClient.create(
-            RedisURI.builder()
-              .withHost("localhost")
-              .withPort(6379)
-              .build());
-    commands = redisClient.connect().async();
-    cache = new LruCache(commands);
+    configuration = Configuration.getFromEnvironment();
     Runtime.getRuntime().addShutdownHook(new Thread() {
       @Override
       public void run() {
@@ -66,22 +58,40 @@ public class Server {
       }
     });
   }
+  
+  public Server withConfiguration(Configuration configuration) {
+    this.configuration = configuration;
+    return this;
+  }
+  
+  public Server start() throws IOException {
+    logger.info("*****************************");
+    logger.info("Starting server with configuration {}", configuration);
+    logger.info("*****************************");
+    redisClient =
+        RedisClient.create(
+            RedisURI.builder()
+              .withHost(configuration.redisHost())
+              .withPort(configuration.redisPort())
+              .build());
+    commands = redisClient.connect().async();
+    cache = new LruCache(commands);
+    startHttpServer();
+    startRespServer();
+    logger.info("*****************************");
+    logger.info("Server started!");
+    logger.info("*****************************");
+    return this;
+  }
+  
+  
   /**
-   * Main server method, which continuously does the following:
-   * 
-   * <ul>
-   * <li>Waits for a client to connect.
-   * <li>Accepts a connection and spawns a RequestHandler to execute it.
-   * </ul>
-   * 
-   * <p>
-   * RequestHandlers are executed by the {@link #threadPool} at some point in the
-   * future.
+   * Main server method, which initializes the cache and starts both listening for
+   * HTTP and RESP connections.
    */
   public static void main(String[] args) throws Exception {
     Server server = new Server();
-    server.startHttpServer();
-    server.startRespServer();
+    server.start();
   }
   
   private void startRespServer() throws IOException {

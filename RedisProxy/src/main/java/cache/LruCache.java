@@ -2,19 +2,14 @@ package cache;
 
 import java.time.Duration;
 import java.util.Optional;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
-import io.lettuce.core.RedisClient;
 import io.lettuce.core.api.async.RedisAsyncCommands;
 
 /**
- * Least recently used cache that stores values retrieved from a backing Redis instance.
+ * Least recently used (LRU) cache that stores values retrieved from a backing Redis instance.
  * 
  * <p>If a key is not present in the cache, its value is retrieved from the Redis instance, directly.
  * 
@@ -35,8 +30,6 @@ public class LruCache {
       this.commands = commands;
     }
     
-    
-
     @Override
     public Optional<String> load(String key) throws Exception {
       return Optional.ofNullable(commands.get(key).get());
@@ -52,6 +45,11 @@ public class LruCache {
         .build(new Loader(commands));
   }
   
+  /**
+   * Get the value associated with the specified key.
+   * 
+   * <p>An absent value indicates that the key does not have an associated value.
+   */
   public Optional<String> get(String key) throws ExecutionException {
     return cache.get(key);
   }

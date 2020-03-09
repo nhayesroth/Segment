@@ -1,20 +1,38 @@
 version: "3"
 services:
+  #### Redis container
   redis:
-    container_name: "${REDIS_NAME}"
+    container_name: redis
     image: redis
     ports:
-      - "${REDIS_PORTS}"
-  # TODO: delete this
-  logo_server:
-      container_name: "${SERVER_NAME}"
-      build: .
-      ports:
-        - "8124:8124"
-      # depends_on:
-      #   - redis
-      # environment:
-      # - PROXY_PORT=4000
-      # - REDIS_ADDRESS=redis:6379
-      # - CACHE_EXPIRY_SECONDS=4
-      # - CACHE_CAPACITY=2
+      - "6379:6379"
+      # - "${REDIS_PORTS}"
+    expose:
+      - 6379
+    networks:
+      - network
+  #### Redis_proxy container
+  redis_proxy:
+    container_name: redis_proxy
+    build:
+      context: .
+      dockerfile: ./RedisProxy/Dockerfile
+    ports:
+      - "8080:8080"
+      - "8124:8124"
+    expose:
+      - 8080
+      - 8124
+    depends_on:
+      - redis
+    environment:
+      - REDIS_HOST=${REDIS_HOST:-redis}
+      - REDIS_PORT=${REDIS_PORT:-6379}
+      - HTTP_PORT=${HTTP_PORT:-8080}
+    # env_file:
+    #   - .env
+    networks:
+      - network
+  #### TODO: tests container
+networks:
+  network:
