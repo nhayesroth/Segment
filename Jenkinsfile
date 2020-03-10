@@ -9,7 +9,10 @@ pipeline {
   stages {
     stage('build') {
       steps {
-        sh 'mvn -B -DskipTests clean package'
+        dir(path: 'RedisProxy/') {
+          sh 'mvn -B -DskipTests clean package'
+        }
+
       }
     }
 
