@@ -51,9 +51,13 @@ public class HttpRequestHandler implements Runnable {
     }
   }
   
+  public static final String FOUND_FORMAT_STRING = "HTTP/1.1 200 OK\r\n\r\n%s";
+  public static final String NO_CONTENT_STRING = "HTTP/1.1 204 No Content\r\n\r\n";
+  
   private String getResult(HttpRequest request) throws ExecutionException {
-    return cache.get(request.key).orElse(
-        String.format("No value found for %s", request.key));
+    return cache.get(request.key)
+        .map(value -> String.format(FOUND_FORMAT_STRING, value))
+        .orElse(NO_CONTENT_STRING);
   }
 
   private HttpRequest parseRequest() {
@@ -65,13 +69,12 @@ public class HttpRequestHandler implements Runnable {
     }
   }
   
-  private void writeToOutput(String str) {
+  private void writeToOutput(String httpResponse) {
     try {
-      String httpResponse = "HTTP/1.1 200 OK\r\n\r\n" + str;
       outputStream.write(httpResponse.getBytes("UTF-8"));
-      logger.info("Wrote to outputStream: {}", str);
+      logger.info("Wrote to outputStream: {}", httpResponse);
     } catch (IOException e) {
-      logger.warn("Encountered exception writing to output: ", str);
+      logger.warn("Encountered exception writing to output: ", httpResponse);
       e.printStackTrace();
       throw new RuntimeException(e);
     }

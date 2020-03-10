@@ -16,7 +16,7 @@ import server.Server;
 public class HttpServer implements Runnable {
 
   private static final Logger logger = LoggerFactory.getLogger(Server.class.getName());
-  private static final int PORT = 8080;
+  public static final int PORT = 8080;
   private static final int MAX_CONCURRENT_HANDLERS = 3;
 
   private final ExecutorService threadPool;

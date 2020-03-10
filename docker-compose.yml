@@ -1,6 +1,6 @@
 version: "3"
 services:
-  #### Redis container
+  #### Redis ####
   redis:
     container_name: redis
     image: redis
@@ -11,7 +11,7 @@ services:
       - 6379
     networks:
       - network
-  #### Redis_proxy container
+  #### RedisProxyServer ####
   redis_proxy:
     container_name: redis_proxy
     build:
@@ -28,11 +28,15 @@ services:
     environment:
       - REDIS_HOST=${REDIS_HOST:-redis}
       - REDIS_PORT=${REDIS_PORT:-6379}
-      - HTTP_PORT=${HTTP_PORT:-8080}
+      - CACHE_EXPIRY=${CACHE_EXPIRY:-1}
+      - CACHE_CAPACITY=${CACHE_CAPACITY:-4}
     # env_file:
     #   - .env
     networks:
       - network
-  #### TODO: tests container
+    working_dir: $PWD
+    volumes:
+      - $PWD:$PWD
+      - /var/run/docker.sock:/var/run/docker.sock
 networks:
   network:

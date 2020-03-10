@@ -17,5 +17,5 @@ rm_redis: stop_redis
 	docker-compose rm redis
 
 test:
-	docker-compose up
-	# docker-compose build --no-cache && docker-compose up
+	# docker-compose up
+	docker-compose build --no-cache && docker-compose up
