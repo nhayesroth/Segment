@@ -84,11 +84,12 @@ public class HttpIntegrationTest {
   
   @Test
   public void testGet_noAssociatedValue() throws IOException {
+    commands.del("garbage", "swedish-fish");
     HttpResponse response1 = HttpClient.getFromSpecificHost(HttpClient.REDIS_PROXY, "garbage");
     assertThat(response1.responseCode).isEqualTo(HttpURLConnection.HTTP_NO_CONTENT);
     assertThat(response1.output).isEmpty();
     
-    HttpResponse response2 = HttpClient.getFromSpecificHost(HttpClient.REDIS_PROXY, "swedish fish");
+    HttpResponse response2 = HttpClient.getFromSpecificHost(HttpClient.REDIS_PROXY, "swedish-fish");
     assertThat(response2.responseCode).isEqualTo(HttpURLConnection.HTTP_NO_CONTENT);
     assertThat(response2.output).isEmpty();
   }
@@ -96,69 +97,38 @@ public class HttpIntegrationTest {
   @Test
   public void testGet_lruCacheEviction() throws IOException, InterruptedException, ExecutionException {
     // Read the capacity of the cache (n).
-    int capacity = configuration.cacheCapacity();
+    int capacity = configuration.cacheCapacity();    
     
-    // Try retrieving (n) keys from the proxy (should return nothing).
+    // Clear (n) keys in Redis and retrieve from the proxy (should return nothing).
     for (int i = 1; i <= capacity; i++) {
+      String key = String.format("key-%d", i);
+      commands.del(key);
       HttpResponse  response =
-          HttpClient.getFromSpecificHost(HttpClient.REDIS_PROXY, "key-" + i);
+          HttpClient.getFromSpecificHost(HttpClient.REDIS_PROXY, key);
       assertThat(response.responseCode).isEqualTo(HttpURLConnection.HTTP_NO_CONTENT);
       assertThat(response.output).isEmpty();
     }
     
-    // Set the first key (LRU entry in the cache) in Redis.
-    commands.set("key-1", "val-1");
+    // Set the first key (LRU entry in the cache) to a different value in Redis.
+    commands.set("key-1", "new-val-1");
     
-    // The value of the LRU entry is still cached as missing.
-    HttpResponse  cachedResponse =
-        HttpClient.getFromSpecificHost(HttpClient.REDIS_PROXY, "key-1");
-    assertThat(cachedResponse.responseCode).isEqualTo(HttpURLConnection.HTTP_NO_CONTENT);
-    assertThat(cachedResponse.output).isEmpty();
+    // Get all (n) keys from proxy (should all be cached as missing.
+    for (int i = 1; i <= capacity; i++) {
+      String key = String.format("key-%d", i);
+      HttpResponse  response =
+          HttpClient.getFromSpecificHost(HttpClient.REDIS_PROXY, key);
+      assertThat(response.responseCode).isEqualTo(HttpURLConnection.HTTP_NO_CONTENT);
+      assertThat(response.output).isEmpty();
+    }
     
     // If we try to get a new value, it should replace the LRU entry in the cache.
-    HttpClient.getFromSpecificHost(HttpClient.REDIS_PROXY, "key-n+1");
+    HttpClient.getFromSpecificHost(HttpClient.REDIS_PROXY, "another-key");
     
-    // Calling the proxy for the removed entry will then read it from the backing Redis instance.
+    // Calling the proxy for the first entry will then read it from the backing Redis instance.
     HttpResponse  loadedResponse =
         HttpClient.getFromSpecificHost(HttpClient.REDIS_PROXY, "key-1");
-    assertThat(loadedResponse.responseCode).isEqualTo(HttpURLConnection.HTTP_NO_CONTENT);
-    assertThat(loadedResponse.output).isEmpty();
-    
-    
-    
-//    ExecutorService threadPool = Executors.newFixedThreadPool(3);
-//    try {
-//      // Set 10 key value pairs.
-//      KEY_VALUE_MAP.entrySet().forEach(entry -> commands.set(entry.getKey(), entry.getValue()));
-//      
-//      // Spawn 3 callables for each key value pair.
-//      // Each callable will trigger the server to spawn a handler thread.
-//      List<CallableHttpGet> callables = new LinkedList<>();
-//      for (Map.Entry<String, String> entry : KEY_VALUE_MAP.entrySet()) {
-//        callables.add(new CallableHttpGet(entry.getKey()));
-//        callables.add(new CallableHttpGet(entry.getKey()));
-//        callables.add(new CallableHttpGet(entry.getKey()));
-//      }
-//      
-//      // Invoke all the requests in parallel.
-//      List<Future<Entry<String, HttpResponse>>> futures =
-//          threadPool.invokeAll(callables);
-//      
-//      // Verify that each future succeeds.
-//      for (Future<Map.Entry<String, HttpResponse>> future : futures) {
-//        Map.Entry<String, HttpResponse> result = future.get();
-//        String key = result.getKey();
-//        String value = result.getValue().output;
-//        int code = result.getValue().responseCode;
-//        assertThat(code).isEqualTo(HttpURLConnection.HTTP_OK);
-//        assertThat(key).startsWith("key");
-//        assertThat(value).startsWith("val");
-//        assertThat(key.substring(key.length() - 1))
-//            .isEqualTo(value.substring(value.length() - 1));
-//      }
-//    } finally {
-//      threadPool.shutdown();
-//    }
+    assertThat(loadedResponse.responseCode).isEqualTo(HttpURLConnection.HTTP_OK);
+    assertThat(loadedResponse.output).isEqualTo("new-val-1");
   }
   
 

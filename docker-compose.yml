@@ -71,7 +71,7 @@ services:
       - REDIS_PROXY_HOST=${REDIS_PROXY_HOST:-redis_proxy}
       - REDIS_HOST=${REDIS_HOST:-redis}
       - REDIS_PORT=${REDIS_PORT:-6379}
-      - CACHE_EXPIRY=${CACHE_EXPIRY:-1}
+      - CACHE_EXPIRY=${CACHE_EXPIRY:-10000}
       - CACHE_CAPACITY=${CACHE_CAPACITY:-4}
     # env_file:
     #   - .env

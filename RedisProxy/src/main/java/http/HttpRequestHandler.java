@@ -32,18 +32,13 @@ public class HttpRequestHandler implements Runnable {
 
   @Override
   public void run() {
-    logger.info("*****************************");
-    logger.info("HttpHandler running...");
-    logger.info("*****************************");
     try {
       HttpRequest request = parseRequest();
       String result = getResult(request);
       writeToOutput(result);
-      logger.info("Closing gracefully...");
       closeSocket();
     } catch (Exception e) {
       e.printStackTrace();
-      logger.info("Closing due to exception...");
       closeSocket();
     }
   }
@@ -67,7 +62,7 @@ public class HttpRequestHandler implements Runnable {
   private void writeToOutput(String httpResponse) {
     try {
       outputStream.write(httpResponse.getBytes("UTF-8"));
-      logger.info("Wrote to outputStream: {}", httpResponse);
+      logger.info("Wrote to outputStream: {}", httpResponse.replace("\n+", ": "));
     } catch (IOException e) {
       logger.warn("Encountered exception writing to output: ", httpResponse);
       e.printStackTrace();

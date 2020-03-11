@@ -39,7 +39,9 @@ public class LruCache {
     
     @Override
     public Optional<String> load(String key) throws Exception {
-      logger.info("Attempting to load value for key: {}", key);
+      logger.info(
+          "Key [{}] is not present in cache. Attempting to load value from Redis...",
+          key);
       return Optional.ofNullable(commands.get(key).get());
     }
   }

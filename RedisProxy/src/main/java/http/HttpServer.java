@@ -38,10 +38,8 @@ public class HttpServer extends Thread {
 
   @Override
   public void run() {
-    logger.info("DEBUG - is this even running 1?");
-    logger.info("DEBUG - serverSocket.isClosed()={}", serverSocket.isClosed());
     while (!serverSocket.isClosed()) {
-        logger.info("DEBUG - is this even running 1?");      try {
+      try {
         Socket socket = waitForClientToConnect();
         spawnRequestHandler(socket);
       } catch (Exception e) {
@@ -50,13 +48,12 @@ public class HttpServer extends Thread {
         return;
       }
     }
-    logger.info("DEBUG - is this even running 2?");
   }
   
   private Socket waitForClientToConnect() throws IOException {
-    logger.debug("Waiting for client to connect...");
+    logger.info("Waiting for client to connect...");
     Socket socket = serverSocket.accept();
-    logger.debug("Client accepted: {}", socket);
+    logger.info("Client accepted: {}", socket);
     return socket;
   }
 
