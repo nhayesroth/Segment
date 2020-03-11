@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,11 +58,10 @@ public class HttpRequestHandler implements Runnable {
   }
 
   private String getResult(HttpRequest request) throws ExecutionException {
-    String result = cache.get(request.key)
-        .map(value -> String.format(FOUND_FORMAT_STRING, value))
+    Optional<String> value = cache.get(request.key);
+    logger.info("cache.get({}) returned {}", request.key, value);
+    return value.map(v -> String.format(FOUND_FORMAT_STRING, v))
         .orElse(NO_CONTENT_STRING);
-    logger.info("GetResult({}) resulted in: {}", result);
-    return result;
   }
 
   private void writeToOutput(String httpResponse) {

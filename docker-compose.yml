@@ -77,14 +77,14 @@ services:
     #   - .env
     networks:
       - network
-    image: maven:3
-    stop_signal: SIGKILL
-    stdin_open: true
-    tty: true
-    working_dir: $PWD
-    volumes:
-      - $PWD:$PWD
-      - /var/run/docker.sock:/var/run/docker.sock
-      # Maven cache (optional)
-      - ~/.m2:/root/.m2
+    # image: maven:3
+    # stop_signal: SIGKILL
+    # stdin_open: true
+    # tty: true
+    # working_dir: $PWD
+    # volumes:
+    #   - $PWD:$PWD
+    #   - /var/run/docker.sock:/var/run/docker.sock
+    #   # Maven cache (optional)
+    #   - ~/.m2:/root/.m2
     command: mvn test
