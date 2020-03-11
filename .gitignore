@@ -1,9 +1,14 @@
 *.old
 .DS*
 .class
-RedisProxy/target/
 .project
+RedisProxy/target/
+RedisProxyIntegrationTests/target/
 RedisProxy/.classpath
 RedisProxy/.metadata/
 RedisProxy/.settings/
 RedisProxy/bin/
+RedisProxyIntegrationTests/.classpath
+RedisProxyIntegrationTests/.metadata/
+RedisProxyIntegrationTests/.settings/
+RedisProxyIntegrationTests/bin/

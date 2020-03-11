@@ -9,7 +9,16 @@
   <version>0.0.1-SNAPSHOT</version>
   <name>RedisProxyServer</name>
   <description>Proxy server that adds additional features on top of a Redis instance.</description>
-
+  <distributionManagement>
+   <repository>
+        <id>repo</id>
+        <url>https://github.com/nhayes-roth/mvn-repo/raw/master/releases</url>
+    </repository>
+    <snapshotRepository>
+        <id>snapshot-repo</id>
+        <url>https://github.com/nhayes-roth/mvn-repo/raw/master/snapshots</url>
+    </snapshotRepository>
+  </distributionManagement>
   <!-- Plugins -->
   <build>
     <plugins>

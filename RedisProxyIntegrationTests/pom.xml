@@ -5,7 +5,7 @@
 >
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.segment.redis.proxyserver</groupId>
-  <artifactId>server-tests</artifactId>
+  <artifactId>integration-tests</artifactId>
   <version>0.0.1-SNAPSHOT</version>
   <name>RedisProxyIntegrationTests</name>
   <description>Integration tests for the RedisProxyServer.</description>
@@ -61,19 +61,26 @@
       </plugin>
     </plugins>
   </build>
+  
+  <repositories>
+    <repository>
+        <id>redis-proxy-server-snapshot</id>
+        <url>https://github.com/nhayes-roth/mvn-repo/raw/master/snapshots</url>
+    </repository>
+  </repositories>
 
   <!-- Dependencies -->
   <dependencies>
   <!-- TODO: make this a dependency instead of a jar -->
-    <!-- <dependency>
+    <dependency>
       <groupId>org.segment.redis.proxyserver</groupId>
       <artifactId>server</artifactId>
       <version>0.0.1-SNAPSHOT</version>
-    </dependency> -->
+    </dependency>
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
-      <version>4.4</version>
+      <version>4.12</version>
     </dependency>
     <dependency>
       <groupId>com.google.guava</groupId>
