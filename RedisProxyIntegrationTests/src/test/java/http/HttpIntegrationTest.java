@@ -4,6 +4,8 @@ import static com.google.common.truth.Truth.assertThat;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.util.AbstractMap;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -38,16 +40,11 @@ public class HttpIntegrationTest {
   
   private static final ImmutableMap<String, String> KEY_VALUE_MAP =
       ImmutableMap.<String, String>builder()
-      .put("key0", "val0")
       .put("key1", "val1")
-      .put("key2", "val")
+      .put("key2", "val2")
       .put("key3", "val3")
       .put("key4", "val4")
       .put("key5", "val5")
-      .put("key6", "val6")
-      .put("key7", "val7")
-      .put("key8", "val8")
-      .put("key9", "val9")
       .build();
 
   @BeforeClass
@@ -97,7 +94,38 @@ public class HttpIntegrationTest {
   }
   
   @Test
-  public void testGet_parallelRequests() throws IOException, InterruptedException, ExecutionException {
+  public void testGet_lruCacheEviction() throws IOException, InterruptedException, ExecutionException {
+    // Read the capacity of the cache (n).
+    int capacity = configuration.cacheCapacity();
+    
+    // Try retrieving (n) keys from the proxy (should return nothing).
+    for (int i = 1; i <= capacity; i++) {
+      HttpResponse  response =
+          HttpClient.getFromSpecificHost(HttpClient.REDIS_PROXY, "key-" + i);
+      assertThat(response.responseCode).isEqualTo(HttpURLConnection.HTTP_NO_CONTENT);
+      assertThat(response.output).isEmpty();
+    }
+    
+    // Set the first key (LRU entry in the cache) in Redis.
+    commands.set("key-1", "val-1");
+    
+    // The value of the LRU entry is still cached as missing.
+    HttpResponse  cachedResponse =
+        HttpClient.getFromSpecificHost(HttpClient.REDIS_PROXY, "key-1");
+    assertThat(cachedResponse.responseCode).isEqualTo(HttpURLConnection.HTTP_NO_CONTENT);
+    assertThat(cachedResponse.output).isEmpty();
+    
+    // If we try to get a new value, it should replace the LRU entry in the cache.
+    HttpClient.getFromSpecificHost(HttpClient.REDIS_PROXY, "key-n+1");
+    
+    // Calling the proxy for the removed entry will then read it from the backing Redis instance.
+    HttpResponse  loadedResponse =
+        HttpClient.getFromSpecificHost(HttpClient.REDIS_PROXY, "key-1");
+    assertThat(loadedResponse.responseCode).isEqualTo(HttpURLConnection.HTTP_NO_CONTENT);
+    assertThat(loadedResponse.output).isEmpty();
+    
+    
+    
 //    ExecutorService threadPool = Executors.newFixedThreadPool(3);
 //    try {
 //      // Set 10 key value pairs.
@@ -131,6 +159,43 @@ public class HttpIntegrationTest {
 //    } finally {
 //      threadPool.shutdown();
 //    }
+  }
+  
+
+  
+  @Test
+  public void testGet_parallelRequests() throws IOException, InterruptedException, ExecutionException {    
+    ExecutorService threadPool = Executors.newFixedThreadPool(3);
+    try {
+      // Set 5 key value pairs.
+      KEY_VALUE_MAP.entrySet().forEach(entry -> commands.set(entry.getKey(), entry.getValue()));
+      
+      // Spawn a callable for each key value pair.
+      // Each callable will trigger the server to spawn a handler thread.
+      List<CallableHttpGet> callables = new LinkedList<>();
+      for (Map.Entry<String, String> entry : KEY_VALUE_MAP.entrySet()) {
+        callables.add(new CallableHttpGet(entry.getKey()));
+      }
+      
+      // Invoke all the requests in parallel.
+      List<Future<Entry<String, HttpResponse>>> futures =
+          threadPool.invokeAll(callables);
+      
+      // Verify that each future succeeds.
+      for (Future<Map.Entry<String, HttpResponse>> future : futures) {
+        Map.Entry<String, HttpResponse> result = future.get();
+        String key = result.getKey();
+        String value = result.getValue().output;
+        int code = result.getValue().responseCode;
+        assertThat(code).isEqualTo(HttpURLConnection.HTTP_OK);
+        assertThat(key).startsWith("key");
+        assertThat(value).startsWith("val");
+        assertThat(value)
+            .isEqualTo(KEY_VALUE_MAP.get(key));
+      }
+    } finally {
+      threadPool.shutdown();
+    }
   }
   
   /**

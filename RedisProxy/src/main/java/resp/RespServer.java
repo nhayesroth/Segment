@@ -19,7 +19,7 @@ public class RespServer extends Thread {
 
   private static final Logger logger = LoggerFactory.getLogger(Server.class.getName());
   private static final int PORT = 8124;
-  private static final int MAX_CONCURRENT_HANDLERS = 3;
+  private static final int MAX_CONCURRENT_HANDLERS = 10;
   private static int sessionId = 1;
 
   private final ExecutorService threadPool;

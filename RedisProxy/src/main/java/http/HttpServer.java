@@ -17,7 +17,7 @@ public class HttpServer extends Thread {
 
   private static final Logger logger = LoggerFactory.getLogger(Server.class.getName());
   public static final int PORT = 8080;
-  private static final int MAX_CONCURRENT_HANDLERS = 3;
+  private static final int MAX_CONCURRENT_HANDLERS = 10;
 
   private final ExecutorService threadPool;
   private final ServerSocket serverSocket;
