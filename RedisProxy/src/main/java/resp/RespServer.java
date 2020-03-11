@@ -15,7 +15,7 @@ import server.Server;
 /**
  * Server that handles Resp request/responses.
  */
-public class RespServer implements Runnable {
+public class RespServer extends Thread {
 
   private static final Logger logger = LoggerFactory.getLogger(Server.class.getName());
   private static final int PORT = 8124;
@@ -41,7 +41,7 @@ public class RespServer implements Runnable {
 
   @Override
   public void run() {
-    while (true) {
+    while (!serverSocket.isClosed()) {
       try {
         Socket socket = waitForClientToConnect();
         spawnRequestHandler(socket);
@@ -64,7 +64,7 @@ public class RespServer implements Runnable {
     threadPool.execute(new RespRequestHandler(sessionId++, socket));
   }
 
-  private void shutdown() {
+  public void shutdown() {
     logger.info("Shutting down the server...");
     if (serverSocket != null) {
       try {

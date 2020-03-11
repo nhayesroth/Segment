@@ -12,11 +12,45 @@ services:
     networks:
       - network
   #### RedisProxyServer ####
-  redis_proxy:
-    container_name: redis_proxy
+  # redis_proxy:
+  #   container_name: redis_proxy
+  #   build:
+  #     context: .
+  #     dockerfile: ./RedisProxy/Dockerfile
+  #   ports:
+  #     - "8080:8080"
+  #     - "8124:8124"
+  #   expose:
+  #     - 8080
+  #     - 8124
+  #   depends_on:
+  #     - redis
+  #   environment:
+  #     - REDIS_HOST=${REDIS_HOST:-redis}
+  #     - REDIS_PORT=${REDIS_PORT:-6379}
+  #     - CACHE_EXPIRY=${CACHE_EXPIRY:-1}
+  #     - CACHE_CAPACITY=${CACHE_CAPACITY:-4}
+  #   # env_file:
+  #   #   - .env
+  #   networks:
+  #     - network
+  #   image: maven:3
+  #   stop_signal: SIGKILL
+  #   stdin_open: true
+  #   tty: true
+  #   working_dir: $PWD
+  #   volumes:
+  #     - $PWD:$PWD
+  #     - /var/run/docker.sock:/var/run/docker.sock
+  #     # Maven cache (optional)
+  #     - ~/.m2:/root/.m2
+  #   command: mvn test
+  #### RedisProxyIntegrationTests ####
+  integration_tests:
+    container_name: integration_tests
     build:
       context: .
-      dockerfile: ./RedisProxy/Dockerfile
+      dockerfile: ./RedisProxyIntegrationTests/Dockerfile
     ports:
       - "8080:8080"
       - "8124:8124"
@@ -25,6 +59,7 @@ services:
       - 8124
     depends_on:
       - redis
+      # - redis_proxy
     environment:
       - REDIS_HOST=${REDIS_HOST:-redis}
       - REDIS_PORT=${REDIS_PORT:-6379}
@@ -34,9 +69,16 @@ services:
     #   - .env
     networks:
       - network
+    image: maven:3
+    stop_signal: SIGKILL
+    stdin_open: true
+    tty: true
     working_dir: $PWD
     volumes:
       - $PWD:$PWD
       - /var/run/docker.sock:/var/run/docker.sock
+      # Maven cache (optional)
+      - ~/.m2:/root/.m2
+    command: mvn test
 networks:
   network:

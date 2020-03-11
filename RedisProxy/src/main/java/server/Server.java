@@ -33,6 +33,8 @@ public class Server {
 
   private static final Logger logger = LoggerFactory.getLogger(Server.class.getName());
   private final ExecutorService threadPool = Executors.newFixedThreadPool(2);
+  private HttpServer httpServer;
+  private RespServer respServer;
   private RedisClient redisClient;
   private RedisAsyncCommands<String, String> commands;
   private LruCache cache;
@@ -97,19 +99,27 @@ public class Server {
   }
   
   private void startRespServer() throws IOException {
-    threadPool.execute(new RespServer(cache));    
+    respServer = new RespServer(cache);
+    threadPool.execute(respServer);
   }
   
   private void startHttpServer() throws IOException {
-    threadPool.execute(new HttpServer(cache));
+    httpServer = new HttpServer(cache);
+    threadPool.execute(httpServer);
   }
 
-  void shutdown() {
+  public void shutdown() {
     logger.info("Shutting down the server...");
     commands.getStatefulConnection().close();
     redisClient.shutdown();
     logger.info("Redis client disconnected and shutdown.");
     threadPool.shutdownNow();
     logger.info("Shutdown threadpool: {}", threadPool);
+    if (httpServer != null) {
+      httpServer.shutdown();
+    }
+    if (respServer != null) {
+      respServer.shutdown();
+    }
   }
 }

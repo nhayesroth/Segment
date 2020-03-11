@@ -7,7 +7,7 @@ proxy:
 	docker-compose up --force-recreate --detach redis_proxy
 
 redis:
-	docker run --rm redis --network=segment_network -p=6379:6379
+	docker run --rm --network=segment_network -p=6379:6379 --detach redis
 	docker-compose up --force-recreate --detach redis
 
 stop_redis:

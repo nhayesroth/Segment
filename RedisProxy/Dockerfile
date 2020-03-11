@@ -5,7 +5,8 @@ COPY RedisProxy/pom.xml ./
 # COPY /src ./src
 # COPY /pom.xml ./
 # Package the server code
-RUN mvn clean package
+RUN mvn clean package -Dmaven.test.skip=true # this should skip tests during compile time
+# RUN mvn clean package -Dmaven.test.skip=true
 
 ############# Stage 2 - Copy the artifact we need (w/dependencies), discard the rest, and set startup commands
 FROM openjdk:8

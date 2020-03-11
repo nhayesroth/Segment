@@ -13,10 +13,10 @@ import server.Server;
 /**
  * Server that handles HTTP request/responses.
  */
-public class HttpServer implements Runnable {
+public class HttpServer extends Thread {
 
   private static final Logger logger = LoggerFactory.getLogger(Server.class.getName());
-  public static final int PORT = 8080;
+  public static final int PORT = 8000;
   private static final int MAX_CONCURRENT_HANDLERS = 3;
 
   private final ExecutorService threadPool;
@@ -38,7 +38,7 @@ public class HttpServer implements Runnable {
 
   @Override
   public void run() {
-    while (true) {
+    while (!serverSocket.isClosed()) {
       try {
         Socket socket = waitForClientToConnect();
         spawnRequestHandler(socket);
@@ -61,7 +61,7 @@ public class HttpServer implements Runnable {
     threadPool.execute(new HttpRequestHandler(socket, cache));
   }
 
-  private void shutdown() {
+  public void shutdown() {
     logger.info("Shutting down the server...");
     if (serverSocket != null) {
       try {
