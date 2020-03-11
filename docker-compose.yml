@@ -1,4 +1,8 @@
 version: "3"
+######## Bridge network shared by each container ########
+networks:
+  network:
+
 services:
   #### Redis ####
   redis:
@@ -12,6 +16,7 @@ services:
       - 6379
     networks:
       - network
+
   #### RedisProxyServer ####
   redis_proxy:
     container_name: redis_proxy
@@ -35,17 +40,19 @@ services:
     #   - .env
     networks:
       - network
-    image: maven:3
-    stop_signal: SIGKILL
-    stdin_open: true
-    tty: true
-    working_dir: $PWD
-    volumes:
-      - $PWD:$PWD
-      - /var/run/docker.sock:/var/run/docker.sock
+    # image: maven:3
+    # stop_signal: SIGKILL
+    # stdin_open: true
+    # tty: true
+    # working_dir: $PWD
+    # volumes:
+    #   - $PWD:$PWD
+    #   - /var/run/docker.sock:/var/run/docker.sock
       # Maven cache (optional)
-      - ~/.m2:/root/.m2
-    command: mvn test
+      # - ~/.m2:/root/.m2
+    # command: "java -jar /server.jar"
+    command: "java -jar /server.jar"
+
   #### RedisProxyIntegrationTests ####
   integration_tests:
     container_name: integration_tests
@@ -53,11 +60,9 @@ services:
       context: .
       dockerfile: ./RedisProxyIntegrationTests/Dockerfile
     ports:
-      - "8080:8080"
-      - "8124:8124"
+      - "9000:9000"
     expose:
-      - 8080
-      - 8124
+      - 9000
     depends_on:
       - redis
       - redis_proxy
@@ -83,5 +88,3 @@ services:
       # Maven cache (optional)
       - ~/.m2:/root/.m2
     command: mvn test
-networks:
-  network:

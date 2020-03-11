@@ -14,6 +14,8 @@ import server.Server;
 /** Handles an HTTP get request. */
 public class HttpRequestHandler implements Runnable {
 
+  public static final String FOUND_FORMAT_STRING = "HTTP/1.1 200 OK\r\n\r\n%s";
+  public static final String NO_CONTENT_STRING = "HTTP/1.1 204 No Content\r\n\r\n";
   private static final Logger logger = LoggerFactory.getLogger(Server.class.getName());
   private Socket socket;
   private final BufferedReader inputReader;
@@ -29,37 +31,22 @@ public class HttpRequestHandler implements Runnable {
 
   @Override
   public void run() {
+    logger.info("*****************************");
+    logger.info("HttpHandler running...");
+    logger.info("*****************************");
     try {
       HttpRequest request = parseRequest();
       String result = getResult(request);
       writeToOutput(result);
+      logger.info("Closing gracefully...");
+      closeSocket();
     } catch (Exception e) {
       e.printStackTrace();
-    } finally {
+      logger.info("Closing due to exception...");
       closeSocket();
     }
   }
   
-  private void closeSocket() {
-    try {
-      socket.close();
-      logger.debug("Closed socket {}", socket);
-    } catch (IOException e) {
-      logger.warn("Encountered exception while closing socket.");
-      e.printStackTrace();
-      throw new RuntimeException(e);
-    }
-  }
-  
-  public static final String FOUND_FORMAT_STRING = "HTTP/1.1 200 OK\r\n\r\n%s";
-  public static final String NO_CONTENT_STRING = "HTTP/1.1 204 No Content\r\n\r\n";
-  
-  private String getResult(HttpRequest request) throws ExecutionException {
-    return cache.get(request.key)
-        .map(value -> String.format(FOUND_FORMAT_STRING, value))
-        .orElse(NO_CONTENT_STRING);
-  }
-
   private HttpRequest parseRequest() {
     try {
       return HttpRequest.parse(inputReader.readLine());
@@ -68,13 +55,32 @@ public class HttpRequestHandler implements Runnable {
       throw new RuntimeException(e);
     }
   }
-  
+
+  private String getResult(HttpRequest request) throws ExecutionException {
+    String result = cache.get(request.key)
+        .map(value -> String.format(FOUND_FORMAT_STRING, value))
+        .orElse(NO_CONTENT_STRING);
+    logger.info("GetResult({}) resulted in: {}", result);
+    return result;
+  }
+
   private void writeToOutput(String httpResponse) {
     try {
       outputStream.write(httpResponse.getBytes("UTF-8"));
       logger.info("Wrote to outputStream: {}", httpResponse);
     } catch (IOException e) {
       logger.warn("Encountered exception writing to output: ", httpResponse);
+      e.printStackTrace();
+      throw new RuntimeException(e);
+    }
+  }
+
+  private void closeSocket() {
+    try {
+      socket.close();
+      logger.debug("Closed socket {}", socket);
+    } catch (IOException e) {
+      logger.warn("Encountered exception while closing socket.");
       e.printStackTrace();
       throw new RuntimeException(e);
     }

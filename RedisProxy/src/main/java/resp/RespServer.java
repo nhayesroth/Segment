@@ -36,7 +36,7 @@ public class RespServer extends Thread {
         RespServer.this.shutdown();
       }
     });
-    logger.info("Server started with thread pool size [{}]...", MAX_CONCURRENT_HANDLERS);
+    logger.info("RESP server started with thread pool size [{}]...", MAX_CONCURRENT_HANDLERS);
   }
 
   @Override

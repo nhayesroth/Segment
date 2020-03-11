@@ -31,14 +31,6 @@ import io.lettuce.core.api.sync.RedisCommands;
 /** Tests the HTTP portion of the proxy server. */
 public class HttpIntegrationTest {
   
-  @ClassRule
-  public static GenericContainer redis =
-    new GenericContainer<>("redis")
-      .withExposedPorts(6379)
-      .waitingFor(
-          Wait.forLogMessage(
-              ".*Ready to accept connections.*\\n", 1));
-  
 //  private static Server server;
   private static RedisClient redisClient;
   private static RedisCommands<String, String> commands;

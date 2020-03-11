@@ -16,7 +16,7 @@ import server.Server;
 public class HttpServer extends Thread {
 
   private static final Logger logger = LoggerFactory.getLogger(Server.class.getName());
-  public static final int PORT = 8000;
+  public static final int PORT = 8080;
   private static final int MAX_CONCURRENT_HANDLERS = 3;
 
   private final ExecutorService threadPool;
@@ -33,13 +33,15 @@ public class HttpServer extends Thread {
         HttpServer.this.shutdown();
       }
     });
-    logger.info("Server started with thread pool size [{}]...", MAX_CONCURRENT_HANDLERS);
+    logger.info("HTTP server started with thread pool size [{}]...", MAX_CONCURRENT_HANDLERS);
   }
 
   @Override
   public void run() {
+    logger.info("DEBUG - is this even running 1?");
+    logger.info("DEBUG - serverSocket.isClosed()={}", serverSocket.isClosed());
     while (!serverSocket.isClosed()) {
-      try {
+        logger.info("DEBUG - is this even running 1?");      try {
         Socket socket = waitForClientToConnect();
         spawnRequestHandler(socket);
       } catch (Exception e) {
@@ -48,6 +50,7 @@ public class HttpServer extends Thread {
         return;
       }
     }
+    logger.info("DEBUG - is this even running 2?");
   }
   
   private Socket waitForClientToConnect() throws IOException {
