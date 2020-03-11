@@ -39,7 +39,7 @@ public class HttpIntegrationTest {
           Wait.forLogMessage(
               ".*Ready to accept connections.*\\n", 1));
   
-  private static Server server;
+//  private static Server server;
   private static RedisClient redisClient;
   private static RedisCommands<String, String> commands;
   private static Configuration configuration;
@@ -64,19 +64,19 @@ public class HttpIntegrationTest {
     configuration =
         Configuration.getFromEnvironment()
         .toBuilder()
-        .setRedisHost(redis.getContainerIpAddress())
-        .setRedisPort(redis.getFirstMappedPort())
+//        .setRedisHost(redis.getContainerIpAddress())
+//        .setRedisPort(redis.getFirstMappedPort())
         .build();;
-    server = new Server()
-        .withConfiguration(configuration)
-        .start();
+//    server = new Server()
+//        .withConfiguration(configuration)
+//        .start();
     redisClient = RedisClient.create(
         RedisURI.builder()
           .withHost(configuration.redisHost())
           .withPort(configuration.redisPort())
           .build());
     commands = redisClient.connect().sync();
-    httpClient = new HttpClient(configuration);
+    httpClient = new HttpClient();
   }
   
   @AfterClass
@@ -85,7 +85,7 @@ public class HttpIntegrationTest {
     KEY_VALUE_MAP.entrySet().forEach(entry -> commands.del(entry.getKey()));
     commands.getStatefulConnection().close();
     redisClient.shutdown();
-    server.shutdown();
+//    server.shutdown();
   }
 
   @Test
@@ -163,9 +163,7 @@ public class HttpIntegrationTest {
     @Override
     public Map.Entry<String, HttpResponse> call() throws Exception {
       return new AbstractMap.SimpleEntry<>(
-          key,
-          new HttpClient(configuration).get(key));
+          key, HttpClient.get(key));
     }
-    
   }
 }

@@ -5,8 +5,12 @@ COPY RedisProxyIntegrationTests/pom.xml ./
 RUN mvn clean package -Dmaven.test.skip=true # this should integration tests at compile time
 
 ############# Stage 2 - Copy the artifact we need (w/dependencies), discard the rest, and set startup commands
-FROM openjdk:8
-COPY --from=MAVEN /target/integration-tests-0.0.1-SNAPSHOT-jar-with-dependencies.jar /integration-tests.jar
+# FROM openjdk:8
+# # COPY --from=MAVEN /target/integration-tests-0.0.1-SNAPSHOT-jar-with-dependencies.jar /integration-tests.jar
+# COPY --from=MAVEN /target/integration-tests-0.0.1-SNAPSHOT-test-jar-with-dependencies.jar /integration-tests.jar
+
+# # Set startup commands to execute the jar
+# CMD ["java", "-jar", "/integration-tests.jar"]
 
 # Set startup commands to execute the jar
-CMD ["java", "-jar", "/integration-tests.jar"]
+CMD ["mvn", "test"]

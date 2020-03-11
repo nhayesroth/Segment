@@ -78,7 +78,7 @@ public class RedisProxyEndToEndHttpTest {
           .withPort(configuration.redisPort())
           .build());
     commands = redisClient.connect().sync();
-    httpClient = new HttpClient(configuration);
+    httpClient = new HttpClient();
   }
   
   @AfterClass
@@ -160,7 +160,7 @@ public class RedisProxyEndToEndHttpTest {
     public Map.Entry<String, HttpResponse> call() throws Exception {
       return new AbstractMap.SimpleEntry<>(
           key,
-          new HttpClient(configuration).get(key));
+          new HttpClient().get(key));
     }
     
   }
