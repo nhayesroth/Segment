@@ -19,7 +19,7 @@
         <url>https://github.com/nhayes-roth/mvn-repo/raw/master/snapshots</url>
     </snapshotRepository>
   </distributionManagement>
-  <!-- Plugins -->
+
   <build>
     <plugins>
       <!-- Use the right version of javac (Maven defaults to 1.6) -->
@@ -71,67 +71,31 @@
     </plugins>
   </build>
 
-  <!-- Dependencies -->
   <dependencies>
-    <!-- https://mvnrepository.com/artifact/junit/junit -->
-    <dependency>
-        <groupId>junit</groupId>
-        <artifactId>junit</artifactId>
-        <version>4.12</version>
-        <scope>compile</scope>
-    </dependency>
     <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
       <version>25.1-jre</version>
     </dependency>
-    <!-- Logging -->
     <dependency> 
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-log4j12</artifactId>
       <version>1.7.28</version>
     </dependency>
-    <!-- https://mvnrepository.com/artifact/io.lettuce/lettuce-core -->
     <dependency>
         <groupId>io.lettuce</groupId>
         <artifactId>lettuce-core</artifactId>
         <version>5.2.2.RELEASE</version>
     </dependency>
     <dependency>
-        <groupId>org.apache.commons</groupId>
-        <artifactId>commons-pool2</artifactId>
-        <version>2.3</version>
-    </dependency>
-    <!-- https://mvnrepository.com/artifact/com.google.truth/truth -->
-    <dependency>
-      <groupId>com.google.truth</groupId>
-      <artifactId>truth</artifactId>
-      <version>0.42</version>
-      <scope>test</scope>
-    </dependency>
-    <!-- https://mvnrepository.com/artifact/com.google.truth.extensions/truth-java8-extension -->
-    <dependency>
-      <groupId>com.google.truth.extensions</groupId>
-      <artifactId>truth-java8-extension</artifactId>
-      <version>1.0.1</version>
-      <scope>test</scope>
-    </dependency>
-    <!-- https://mvnrepository.com/artifact/com.google.collections/google-collections -->
-    <dependency>
-      <groupId>com.google.collections</groupId>
-      <artifactId>google-collections</artifactId>
-      <version>1.0</version>
-    </dependency>
-    <dependency>
       <groupId>org.apache.httpcomponents</groupId>
       <artifactId>httpclient</artifactId>
       <version>4.3.6</version>
     </dependency>
-    <!-- <dependency>
-        <groupId>org.testcontainers</groupId>
-        <artifactId>testcontainers</artifactId>
-        <version>1.13.0</version>
-        <scope>test</scope>
-    </dependency> -->
+    <dependency>
+        <groupId>commons-io</groupId>
+        <artifactId>commons-io</artifactId>
+        <version>2.6</version>
+    </dependency>
   </dependencies>
 </project>

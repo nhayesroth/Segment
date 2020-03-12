@@ -99,12 +99,12 @@ public class Server {
   }
   
   private void startRespServer() throws IOException {
-    respServer = new RespServer(cache);
+    respServer = new RespServer(cache, configuration);
     threadPool.execute(respServer);
   }
   
   private void startHttpServer() throws IOException {
-    httpServer = new HttpServer(cache);
+    httpServer = new HttpServer(cache, configuration);
     threadPool.execute(httpServer);
   }
 

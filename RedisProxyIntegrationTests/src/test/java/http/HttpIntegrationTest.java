@@ -4,8 +4,6 @@ import static com.google.common.truth.Truth.assertThat;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.util.AbstractMap;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -18,10 +16,6 @@ import java.util.concurrent.Future;
 import org.junit.BeforeClass;
 import org.junit.AfterClass;
 import org.junit.Test;
-import org.junit.ClassRule;
-import server.Server;
-import org.testcontainers.containers.GenericContainer;
-import org.testcontainers.containers.wait.strategy.Wait;
 import com.google.common.collect.ImmutableMap;
 import configuration.Configuration;
 import http.HttpClient;
@@ -30,10 +24,14 @@ import io.lettuce.core.RedisClient;
 import io.lettuce.core.RedisURI;
 import io.lettuce.core.api.sync.RedisCommands;
 
-/** Tests the HTTP portion of the proxy server. */
+/**
+ * Tests the HTTP portion of the proxy server.
+ * 
+ * <p>This test expects to be run inside a docker container that can communicate
+ * with a RedisProxy in another container.
+ */
 public class HttpIntegrationTest {
   
-//  private static Server server;
   private static RedisClient redisClient;
   private static RedisCommands<String, String> commands;
   private static Configuration configuration;
@@ -63,7 +61,6 @@ public class HttpIntegrationTest {
   
   @AfterClass
   public static void tearDown() {
-    commands.del("foo");
     KEY_VALUE_MAP.entrySet().forEach(entry -> commands.del(entry.getKey()));
     commands.getStatefulConnection().close();
     redisClient.shutdown();
@@ -71,6 +68,7 @@ public class HttpIntegrationTest {
 
   @Test
   public void testGet() throws IOException {
+    commands.del("foo");
     commands.set("foo", "bar");
     
     HttpResponse response1 = HttpClient.getFromSpecificHost(HttpClient.REDIS_PROXY, "foo");
@@ -112,7 +110,7 @@ public class HttpIntegrationTest {
     // Set the first key (LRU entry in the cache) to a different value in Redis.
     commands.set("key-1", "new-val-1");
     
-    // Get all (n) keys from proxy (should all be cached as missing.
+    // Get all (n) keys from proxy (should all be cached as missing).
     for (int i = 1; i <= capacity; i++) {
       String key = String.format("key-%d", i);
       HttpResponse  response =
@@ -127,11 +125,10 @@ public class HttpIntegrationTest {
     // Calling the proxy for the first entry will then read it from the backing Redis instance.
     HttpResponse  loadedResponse =
         HttpClient.getFromSpecificHost(HttpClient.REDIS_PROXY, "key-1");
+    // The previously cached, absent value, is replaced with the newly-loaded value.
     assertThat(loadedResponse.responseCode).isEqualTo(HttpURLConnection.HTTP_OK);
     assertThat(loadedResponse.output).isEqualTo("new-val-1");
   }
-  
-
   
   @Test
   public void testGet_parallelRequests() throws IOException, InterruptedException, ExecutionException {    
@@ -164,6 +161,7 @@ public class HttpIntegrationTest {
             .isEqualTo(KEY_VALUE_MAP.get(key));
       }
     } finally {
+      commands.del(KEY_VALUE_MAP.keySet().toArray(new String[0]));
       threadPool.shutdown();
     }
   }
@@ -182,7 +180,6 @@ public class HttpIntegrationTest {
     @Override
     public Map.Entry<String, HttpResponse> call() throws Exception {
       return new AbstractMap.SimpleEntry<>(
-          // TODO: change this to read from environment
           key, HttpClient.getFromSpecificHost(HttpClient.REDIS_PROXY, key));
     }
   }

@@ -11,27 +11,30 @@ import server.Server;
 /** Holds environment variables used to configure the server. */
 public class Configuration {
   private static final Logger logger = LoggerFactory.getLogger(Server.class.getName());
-  // Note: when running within a container, this should be redis. localhost is appropriate for local development/testing.
   private static final String DEFAULT_REDIS_HOST = "localhost";
   private static final int DEFAULT_REDIS_PORT = 6379;
   private static final Duration DEFAULT_CACHE_EXPIRY = Duration.ofMillis(5000);
   private static final int DEFAULT_CACHE_CAPACITY = 10;
+  private static final int DEFAULT_MAX_CONCURRENT_HANDLERS = 10;
   
   private String redisHost;
   private int redisPort;
   private Duration cacheExpiry;
   private int cacheCapacity;
+  private int maxConcurrentHandlers;
   
   /** Constructor. */
   Configuration(
       String redisHost,
       int redisPort,
       Duration cacheExpiry,
-      int cacheCapacity) {
+      int cacheCapacity,
+      int maxConcurrentHandlers) {
     this.redisHost = redisHost;
     this.redisPort = redisPort;
     this.cacheExpiry = cacheExpiry;
     this.cacheCapacity = cacheCapacity;
+    this.maxConcurrentHandlers = maxConcurrentHandlers;
   }
   
   @Override
@@ -59,15 +62,24 @@ public class Configuration {
                 "REDIS_HOST", DEFAULT_REDIS_HOST))
         .setRedisPort(
             transformOrElse(
-                "REDIS_PORT", Integer::parseInt, DEFAULT_REDIS_PORT))
+                "REDIS_PORT",
+                Integer::parseInt,
+                DEFAULT_REDIS_PORT))
         .setCacheCapacity(
             transformOrElse(
-                "CACHE_CAPACITY", Integer::parseInt, DEFAULT_CACHE_CAPACITY))
+                "CACHE_CAPACITY",
+                Integer::parseInt,
+                DEFAULT_CACHE_CAPACITY))
         .setCacheExpiry(
             transformOrElse(
                 "CACHE_EXPIRY",
                 v -> Duration.ofMillis(Long.parseLong(v)),
                 DEFAULT_CACHE_EXPIRY))
+        .setMaxConcurrentHandlers(
+            transformOrElse(
+                "MAX_CONCURRENT_HANDLERS",
+                Integer::parseInt, 
+                DEFAULT_MAX_CONCURRENT_HANDLERS))
         .build();
   }
   
@@ -97,6 +109,10 @@ public class Configuration {
     return cacheExpiry;
   }
   
+  public int maxConcurrentHandlers() {
+    return maxConcurrentHandlers;
+  }
+  
   public int cacheCapacity() {
     return cacheCapacity;
   }
@@ -106,6 +122,7 @@ public class Configuration {
     private int redisPort;
     private Duration cacheExpiry;
     private int cacheCapacity;
+    private int maxConcurrentHandlers;
     
     public Builder setRedisHost(String redisHost) {
       this.redisHost = redisHost;
@@ -126,15 +143,26 @@ public class Configuration {
       return this;
     }
     
+    public Builder setMaxConcurrentHandlers(int maxConcurrentHandlers) {
+      this.maxConcurrentHandlers = maxConcurrentHandlers;
+      return this;
+    }
+    
     public Configuration build() {
       return new Configuration(
           redisHost,
           redisPort,
           cacheExpiry,
-          cacheCapacity);
+          cacheCapacity,
+          maxConcurrentHandlers);
     }
   }
 
+  /**
+   * Utility that gets a system variable and, if present, transforms it.
+   * 
+   * <p>If the system variable is not present, the default value is returned instead.
+   */
   private static <T> T transformOrElse(String key, Function<String, T> transform, T defaultVal) {
     return System.getenv().containsKey(key)
         ? transform.apply(System.getenv(key))

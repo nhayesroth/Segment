@@ -8,6 +8,7 @@ import java.util.concurrent.Executors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import cache.LruCache;
+import configuration.Configuration;
 import server.Server;
 
 /**
@@ -17,15 +18,15 @@ public class HttpServer extends Thread {
 
   private static final Logger logger = LoggerFactory.getLogger(Server.class.getName());
   public static final int PORT = 8080;
-  private static final int MAX_CONCURRENT_HANDLERS = 10;
-
+  
   private final ExecutorService threadPool;
   private final ServerSocket serverSocket;
   private final LruCache cache;  
 
-  public HttpServer(LruCache cache) throws IOException {
+  public HttpServer(
+      LruCache cache, Configuration configuration) throws IOException {
     serverSocket = new ServerSocket(PORT);
-    threadPool = Executors.newFixedThreadPool(MAX_CONCURRENT_HANDLERS);
+    threadPool = Executors.newFixedThreadPool(configuration.maxConcurrentHandlers());
     this.cache = cache;
     Runtime.getRuntime().addShutdownHook(new Thread() {
       @Override
@@ -33,7 +34,7 @@ public class HttpServer extends Thread {
         HttpServer.this.shutdown();
       }
     });
-    logger.info("HTTP server started with thread pool size [{}]...", MAX_CONCURRENT_HANDLERS);
+    logger.info("HTTP server started with thread pool size [{}]...", configuration.maxConcurrentHandlers());
   }
 
   @Override

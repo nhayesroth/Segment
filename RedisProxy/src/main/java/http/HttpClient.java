@@ -10,8 +10,6 @@ import server.Server;
 
 /** Simple client that can make http requests to the proxy server. */
 public class HttpClient {
-  
-  // TODO: I changed the nature of this class, it will need to be re-deployed and accounted for in the IT test.
   public static final String LOCALHOST = "localhost";
   public static final String REDIS_PROXY = "redis_proxy";
   private static final String URL_FORMAT = "http://%s:%d/%s";

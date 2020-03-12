@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.google.common.cache.Cache;
 import cache.LruCache;
+import configuration.Configuration;
 import io.lettuce.core.api.async.RedisAsyncCommands;
 import server.Server;
 
@@ -19,16 +20,15 @@ public class RespServer extends Thread {
 
   private static final Logger logger = LoggerFactory.getLogger(Server.class.getName());
   private static final int PORT = 8124;
-  private static final int MAX_CONCURRENT_HANDLERS = 10;
-  private static int sessionId = 1;
 
   private final ExecutorService threadPool;
   private final ServerSocket serverSocket;
   private final LruCache cache;  
 
-  public RespServer(LruCache cache) throws IOException {
+  public RespServer(
+      LruCache cache, Configuration configuration) throws IOException {
     serverSocket = new ServerSocket(PORT);
-    threadPool = Executors.newFixedThreadPool(MAX_CONCURRENT_HANDLERS);
+    threadPool = Executors.newFixedThreadPool(configuration.maxConcurrentHandlers());
     this.cache = cache;
     Runtime.getRuntime().addShutdownHook(new Thread() {
       @Override
@@ -36,7 +36,7 @@ public class RespServer extends Thread {
         RespServer.this.shutdown();
       }
     });
-    logger.info("RESP server started with thread pool size [{}]...", MAX_CONCURRENT_HANDLERS);
+    logger.info("RESP server started with thread pool size [{}]...", configuration.maxConcurrentHandlers());
   }
 
   @Override
@@ -54,14 +54,14 @@ public class RespServer extends Thread {
   }
 
   private Socket waitForClientToConnect() throws IOException {
-    logger.info("Waiting for client [{}] to connect...", sessionId);
+    logger.info("Waiting for client to connect...");
     Socket socket = serverSocket.accept();
-    logger.info("Client [{}] accepted: {}", sessionId, socket);
+    logger.info("Client accepted: {}", socket);
     return socket;
   }
 
   private void spawnRequestHandler(Socket socket) throws IOException {
-    threadPool.execute(new RespRequestHandler(sessionId++, socket));
+    threadPool.execute(new RespRequestHandler(socket, cache));
   }
 
   public void shutdown() {
