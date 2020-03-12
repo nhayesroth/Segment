@@ -26,9 +26,9 @@ Running the `make test` target will cause Docker to produce 3 different services
 * redis: standard redis container
 * redis_proxy: this application, which adds caching to the redis instance
 * integration_tests: test container which runs a suite of tests against the configuration of redis & redis_proxy
- * This test service actually depends on the source code for the proxy.
- * The proxy's code is deployed to Maven at https://github.com/nhayes-roth/mvn-repo/.
- * The test service downloads the packaged jar during its own build phase.
+  * This test service actually depends on the source code for the proxy.
+  * The proxy's code is deployed to Maven at https://github.com/nhayes-roth/mvn-repo/.
+  * The test service downloads the packaged jar during its own build phase.
 
 ## Architecture
 
@@ -72,6 +72,6 @@ Reads system environment variables and constructs a value class that can be shar
 ## Requirements Not Met/What's Next?
 * I have yet to implement the RESP protocol. I intended to, but spent far longer fighting with Docker/Maven than I expected.
 * I have written 0 unit tests. If I were to deploy this application for real:
- * Each individual class would need its own set of unit tests
- * I would also add some EndToEnd tests that use in-memory Redis fakes to test behavior before deploying.
- * All of these tests would run during the packaging phase, in addition to the final integration test phase.
+  * Each individual class would need its own set of unit tests
+  * I would also add some EndToEnd tests that use in-memory Redis fakes to test behavior before deploying.
+  * All of these tests would run during the packaging phase, in addition to the final integration test phase.
