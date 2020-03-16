@@ -16,32 +16,34 @@ The above commands will build 2 java programs (the proxy server itself, and an i
 #### How do I hit it?
 After running `make test`, the proxy server should be up and running on your local machine. Assuming you didn't change change any of the REDIS_PORT, HTTP_PORT, or RESP_PORT environment variables, you can now hit the proxy on your local machine:
 
-#####
-Set a variable in the backing Redis instance:
-$ (printf "SET foo bar\r\n"; sleep 1) | nc localhost 6379
-+OK
-
-Retrieve the variable via HTTP:
-$ curl "localhost:8080/foo" -v
-*   Trying ::1...
-* TCP_NODELAY set
-* Connected to localhost (::1) port 8080 (#0)
-> GET /foo HTTP/1.1
-> Host: localhost:8080
-> User-Agent: curl/7.54.0
-> Accept: */*
-> 
-< HTTP/1.1 200 OK
-* no chunk, no close, no size. Assume close to signal end
-< 
-* Closing connection 0
-bar
-
-Retrieve a variable via RESP:
-$ (printf "GET foo\r\n"; sleep 1) | nc localhost 6379
-$3
-bar
-
+* Set a variable in the backing Redis instance:
+ ```
+ $ (printf "SET foo bar\r\n"; sleep 1) | nc localhost 6379
+ +OK
+ ```
+* Retrieve the variable via HTTP:
+ ```
+ $ curl "localhost:8080/foo" -v
+ *   Trying ::1...
+ * TCP_NODELAY set
+ * Connected to localhost (::1) port 8080 (#0)
+ > GET /foo HTTP/1.1
+ > Host: localhost:8080
+ > User-Agent: curl/7.54.0
+ > Accept: */*
+ > 
+ < HTTP/1.1 200 OK
+ * no chunk, no close, no size. Assume close to signal end
+ < 
+ * Closing connection 0
+ bar
+ ```
+* Retrieve a variable via RESP:
+ ```
+ $ (printf "GET foo\r\n"; sleep 1) | nc localhost 6379
+ $3
+ bar
+ ```
 #### Configuration
 The proxy server can be configured by passing environment variables to the `make test` command via `-e`.
 
@@ -53,21 +55,12 @@ For a full list of configurable variables, see:
 
 ### How it works
 Running the `make test` target will cause Docker to produce 3 different services: redis, redis_proxy, integration_tests.
-<<<<<<< HEAD
-* redis: standard redis container
-* redis_proxy: this application, which adds caching to the redis instance
-* integration_tests: test container which runs a suite of tests against the configuration of redis & redis_proxy
-  * This test service actually depends on the source code for the proxy.
-  * The proxy's code is deployed to Maven at https://github.com/nhayes-roth/mvn-repo/.
-  * The test service downloads the packaged jar during its own build phase.
-=======
 * redis: standard Redis container.
 * redis_proxy: the proxy server application, which adds caching to the Redis instance.
 * integration_tests: test container which runs a suite of tests against the configuration of Redis & redis_proxy.
  * This test service actually depends on some of the source code for the proxy.
  * The proxy's code is deployed to Maven at https://github.com/nhayes-roth/mvn-repo/.
  * The test service downloads the packaged jar during its own build phase.
->>>>>>> unit-tests
 
 ## Architecture
 
@@ -115,17 +108,9 @@ Reads system environment variables and constructs a value class that can be shar
  * Most of this time was dedicated to testing/debugging corner cases.
 
 ## Requirements Not Met/What's Next?
-<<<<<<< HEAD
-* I have yet to implement the RESP protocol. I intended to, but spent far longer fighting with Docker/Maven than I expected.
-* I have written 0 unit tests. If I were to deploy this application for real:
-  * Each individual class would need its own set of unit tests
-  * I would also add some EndToEnd tests that use in-memory Redis fakes to test behavior before deploying.
-  * All of these tests would run during the packaging phase, in addition to the final integration test phase.
-=======
 * All requirements have been met.
 * If I were to deploy this for real:
  * I would expand the set of unit tests (e.g. for classes such as the Servers, RequestHandlers, etc.).
  * I would refactor some of the RESP protocol handling. It is not very clean, currently.
  * I would refactor the E2E vs Integration tests. They are currently largely identical, but run at different stages of deployment.
  * I would refactor the ProxyServer package to allow the ProxyServerIntegrationTests package to depend on a smaller subset.
->>>>>>> unit-tests
