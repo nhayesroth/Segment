@@ -97,5 +97,39 @@
         <artifactId>commons-io</artifactId>
         <version>2.6</version>
     </dependency>
+    <dependency>
+      <groupId>com.google.truth</groupId>
+      <artifactId>truth</artifactId>
+      <version>0.42</version>
+    </dependency>
+	<dependency>
+	    <groupId>com.google.auto.value</groupId>
+	    <artifactId>auto-value</artifactId>
+	    <version>1.7</version>
+	</dependency>
+	<dependency>
+	    <groupId>org.junit.jupiter</groupId>
+	    <artifactId>junit-jupiter-api</artifactId>
+	    <version>5.6.0</version>
+	    <scope>test</scope>
+	</dependency>
+	    <dependency>
+        <groupId>org.mockito</groupId>
+        <artifactId>mockito-core</artifactId>
+        <version>3.0.0</version>
+        <scope>test</scope>
+    </dependency>
+	<dependency>
+	    <groupId>com.google.guava</groupId>
+	    <artifactId>guava-testlib</artifactId>
+	    <version>28.2-jre</version>
+	    <scope>test</scope>
+	</dependency>
+	<dependency>
+		  <groupId>com.github.kstyrc</groupId>
+		  <artifactId>embedded-redis</artifactId>
+		  <version>0.6</version>
+	      <scope>test</scope>
+	</dependency>
   </dependencies>
 </project>

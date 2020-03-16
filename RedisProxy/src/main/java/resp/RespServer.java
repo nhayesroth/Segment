@@ -1,5 +1,8 @@
 package resp;
 
+import cache.LruCache;
+import configuration.Configuration;
+import io.lettuce.core.RedisClient;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -7,10 +10,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.google.common.cache.Cache;
-import cache.LruCache;
-import configuration.Configuration;
-import io.lettuce.core.api.async.RedisAsyncCommands;
 import server.Server;
 
 /**
@@ -18,25 +17,33 @@ import server.Server;
  */
 public class RespServer extends Thread {
 
-  private static final Logger logger = LoggerFactory.getLogger(Server.class.getName());
-  private static final int PORT = 8124;
+  private static final Logger logger =
+      LoggerFactory.getLogger(Server.class.getName());
 
   private final ExecutorService threadPool;
   private final ServerSocket serverSocket;
-  private final LruCache cache;  
+  private final LruCache cache;
+  private final Configuration configuration;
 
   public RespServer(
-      LruCache cache, Configuration configuration) throws IOException {
-    serverSocket = new ServerSocket(PORT);
-    threadPool = Executors.newFixedThreadPool(configuration.maxConcurrentHandlers());
+      LruCache cache,
+      Configuration configuration,
+      RedisClient redisClient)
+      throws IOException {
+    serverSocket = new ServerSocket(configuration.respPort());
+    threadPool =
+        Executors.newFixedThreadPool(configuration.maxConcurrentHandlers());
     this.cache = cache;
+    this.configuration = configuration;
     Runtime.getRuntime().addShutdownHook(new Thread() {
       @Override
       public void run() {
         RespServer.this.shutdown();
       }
     });
-    logger.info("RESP server started with thread pool size [{}]...", configuration.maxConcurrentHandlers());
+    logger.info(
+        "RESP server started with thread pool size [{}]...",
+        configuration.maxConcurrentHandlers());
   }
 
   @Override
@@ -46,9 +53,9 @@ public class RespServer extends Thread {
         Socket socket = waitForClientToConnect();
         spawnRequestHandler(socket);
       } catch (Exception e) {
-        logger.info("Encountered an Exception: {}", e);
-        e.printStackTrace();
-        throw new RuntimeException(e);
+        logger.info("Encountered an Exception: {}", e.getMessage());
+        shutdown();
+        return;
       }
     }
   }
@@ -61,7 +68,7 @@ public class RespServer extends Thread {
   }
 
   private void spawnRequestHandler(Socket socket) throws IOException {
-    threadPool.execute(new RespRequestHandler(socket, cache));
+    threadPool.execute(new RespRequestHandler(socket, cache, configuration));
   }
 
   public void shutdown() {
@@ -76,6 +83,6 @@ public class RespServer extends Thread {
       }
     }
     threadPool.shutdownNow();
-    logger.info("Shutdown threadpool: {}", threadPool); 
+    logger.info("Shutdown threadpool: {}", threadPool);
   }
 }

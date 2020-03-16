@@ -1,12 +1,12 @@
 package http;
 
-import java.io.IOException;
 import com.google.common.base.Preconditions;
+import java.io.IOException;
 
 /** Simple value class representing an HTTP request sent to the server. */
 public class HttpRequest {
   String key;
-  
+
   public HttpRequest(String key) {
     this.key = key;
   }
@@ -17,7 +17,7 @@ public class HttpRequest {
     Preconditions.checkState(array[1].startsWith("/"));
     return new HttpRequest(array[1].substring(1));
   }
-  
+
   @Override
   public String toString() {
     return String.format("HttpRequest { Key=%s }", key);

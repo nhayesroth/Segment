@@ -2,6 +2,7 @@
 .DS*
 .class
 .project
+RedisProxy/.factorypath
 RedisProxy/target/
 RedisProxyIntegrationTests/target/
 RedisProxy/.classpath

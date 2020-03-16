@@ -1,21 +1,22 @@
 package resp;
 
-import java.io.BufferedReader;
-import java.io.IOException;
+import com.google.auto.value.AutoValue;
+import io.lettuce.core.protocol.CommandType;
 
 /**
- * Simple value class used to parse RESP input.
- * 
- * <p>TODO: this class is not implemented
+ * Simple value class representing a request/command sent to Redis.
+ * <p>
+ * Note: this only supports GET requests as of now, but it could be easily
+ * extended to support other command types and parameter(s).
  */
-public class RespRequest {
-  
-  protected String input;
-  protected RespProtocol.MessageType messageType;
-  protected String key;
+@AutoValue
+public abstract class RespRequest {
+  abstract CommandType commandType();
 
-  public static RespRequest parse(BufferedReader inputReader) throws IOException {
-    return null;
+  abstract String key();
+
+  /** Create a GET request targeting the specified key. */
+  static RespRequest get(String key) {
+    return new AutoValue_RespRequest(CommandType.GET, key);
   }
-
 }

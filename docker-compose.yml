@@ -30,6 +30,7 @@ services:
       - CACHE_EXPIRY=${CACHE_EXPIRY:-1}
       - CACHE_CAPACITY=${CACHE_CAPACITY:-4}
       - MAX_CONCURRENT_HANDLERS=${MAX_CONCURRENT_HANDLERS:-12}
+      - MAX_PIPELINED_RESP_COMMANDS=${MAX_PIPELINED_RESP_COMMANDS:-5}
     networks:
       - network
     command: "java -jar /server.jar"
